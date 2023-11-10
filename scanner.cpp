@@ -35,9 +35,19 @@ int main(int argc,char *argv[]){
     //arbol -> saca_Tokens();
     //------------------Chequeo de sintáxis----------------------------------------
     map<string,int> terminos;
-    vector<set<char> > primeros;
-    registro(terminos,primeros,arbol,cantidadTokens+1);
-
+    map<int,string> inversoterminos;
+    vector<set<int> > primeros;
+    int todosComponentes=0;
+    registro(terminos,primeros,arbol,cantidadTokens+1,todosComponentes,inversoterminos);
+    cout<<":)\n";
+    for(int i=1;i<todosComponentes;i++){
+        cout<<inversoterminos[i]<<"::\n{";
+        for(int z:primeros[i]){
+            if(z>cantidadTokens+1){cout<<"Epsilon, ";continue;}
+            cout<<nombres[z]<<", ";
+        }
+        cout<<"}\n";
+    }
     //-----------------------------------------------------------------------------
     bool existe_Error=0;
     bool comentariote = 0;
