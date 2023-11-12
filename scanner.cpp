@@ -37,12 +37,22 @@ int main(int argc,char *argv[]){
     map<string,int> terminos;
     map<int,string> inversoterminos;
     vector<set<int> > primeros;
+    vector<set<int> > siguientes;
     int todosComponentes=0;
-    registro(terminos,primeros,arbol,cantidadTokens+1,todosComponentes,inversoterminos);
-    cout<<":)\n";
+    registro(terminos,primeros,siguientes,arbol,cantidadTokens+1,todosComponentes,inversoterminos);
+    //cout<<":)\n";
     for(int i=1;i<todosComponentes;i++){
         cout<<inversoterminos[i]<<"::\n{";
         for(int z:primeros[i]){
+            if(z>cantidadTokens+1){cout<<"Epsilon, ";continue;}
+            cout<<nombres[z]<<", ";
+        }
+        cout<<"}\n";
+    }
+    cout<<"\n\n";
+    for(int i=1;i<todosComponentes;i++){
+        cout<<inversoterminos[i]<<"::\n{";
+        for(int z:siguientes[i]){
             if(z>cantidadTokens+1){cout<<"Epsilon, ";continue;}
             cout<<nombres[z]<<", ";
         }

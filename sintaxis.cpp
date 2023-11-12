@@ -70,7 +70,17 @@ void busca(int nodo, vector<set<int> > &primeros, vector<vector<int> > &mapa,vec
     }
 }
 
-bool registro(map<string,int> &traductor,vector<set<int> > &primeros,nodo_TRIE *arbol,int cantidadTokens,int &todosComponentes,map<int,string> &inversoterminos){
+
+void buscasegundo(int nodo, vector<set<int> > &primeros, vector<vector<int> > &mapa,vector<int> &vis,int cantidadTokens){
+    if(vis[nodo])return;
+    vis[nodo]=1;
+    for(int z:mapa[nodo]){
+        buscasegundo(z,primeros,mapa,vis,cantidadTokens);
+        for(int w:primeros[z])primeros[nodo].insert(w);
+    }
+}
+
+bool registro(map<string,int> &traductor,vector<set<int> > &primeros,vector<set<int> > &siguientes, nodo_TRIE *arbol,int cantidadTokens,int &todosComponentes,map<int,string> &inversoterminos){
     ifstream fin;
     fin.open("gramatica");
     ofstream fout;
@@ -93,6 +103,7 @@ bool registro(map<string,int> &traductor,vector<set<int> > &primeros,nodo_TRIE *
     fin.open("gramatica");
     vector<bool> vistos(traductor.size()+1);
     primeros.resize(cantidadTokens+cont+5);
+    siguientes.resize(cantidadTokens+cont+5);
     vector<vector<aristaCiclo> > mapa(cantidadTokens+cont+5);
     vector<nodoCiclo> infoNodos(cantidadTokens+cont+5);
     vector<int> vis(cantidadTokens+cont+5);
@@ -169,6 +180,7 @@ bool registro(map<string,int> &traductor,vector<set<int> > &primeros,nodo_TRIE *
             mapa[origen].push_back({siguiente,infoNodos[origen].grupos,i});
         }
     }
+    fin.close();
 
     for(int i =cantidadTokens+1;i<cont;i++)
         infoNodos[i].inicializa();
@@ -177,9 +189,9 @@ bool registro(map<string,int> &traductor,vector<set<int> > &primeros,nodo_TRIE *
     for(int i =1;i<extras;i++)
         tarjan(i,mapa,infoNodos,vis,visitas,dag,pila,componentes,cantidadTokens,traductor["3ps"]);
     
-    for(int i =1;i<extras;i++){
+    /*for(int i =1;i<extras;i++){
         cout<<i<<","<<dag[i]<<"::<<"<<infoNodos[i].epsilon<<"\n";
-    }
+    }*/
 
     set<pair<int,int> > listo;
     vector<vector<int> > dagueado(componentes+2);
@@ -208,7 +220,7 @@ bool registro(map<string,int> &traductor,vector<set<int> > &primeros,nodo_TRIE *
     for(int i=1;i<extras;i++){
         tradag[dag[i]].push_back(i);
     }
-    cout<<":0";
+    //cout<<":0";
     for(int i=1;i<=componentes;i++){
         for(int z:tradag[i]){
             for(int zi: primerosdag[i]){
@@ -234,6 +246,97 @@ bool registro(map<string,int> &traductor,vector<set<int> > &primeros,nodo_TRIE *
         cout<<"\n";
     }*/
     todosComponentes = extras;
+    mapa.clear();
+    mapa.resize(cantidadTokens+cont+5);
+
+    vis.clear();
+    visitas.clear();
+    dag.clear();
+    vis.resize(cantidadTokens+cont+5);
+    visitas.resize(cantidadTokens+cont+5);
+    dag.resize(cantidadTokens+cont+5);
+    dagueado.clear();
+    fin.open("gramTraduc");
+    while(fin>>origen){
+        fin>>elementos;
+        //cout<<origen<<"_:_"<<elementos<<"\n";
+        vector<int> datos(elementos);
+        for(int i =0;i<elementos;i++)fin>>datos[i];
+        //for(auto z:datos)cout<<z<<",";
+        //cout<<"\n";
+        for(int i =0;i<elementos;i++){
+            if(datos[i]<=cantidadTokens || datos[i]==traductor["3ps"] || datos[i]==traductor["1d"])continue;
+            int j = i+1;
+            for(;j<elementos;j++){
+                if(datos[j]>cantidadTokens && datos[j]!=traductor["3ps"] && datos[j]!=traductor["1d"]){
+                    for(int z:primeros[datos[j]]){
+                        if(z==traductor["3ps"])continue;
+                        siguientes[datos[i]].insert(z);
+                    }
+                    if(!primeros[datos[j]].count(traductor["3ps"]))break;
+                }else{
+                    if(datos[j]==traductor["3ps"]){
+                        j++;
+                        break;
+                    }
+                    siguientes[datos[i]].insert(datos[j]);
+                    break;
+                }
+            }
+            if(j>=elementos){
+                mapa[datos[i]].push_back({origen,0,0});
+            }
+        }
+    }
+    siguientes[cantidadTokens+1].insert(traductor["3ps"]);
+    /*for(int i =1;i<extras;i++){
+        cout<<i<<"___\n";
+        for(auto z: siguientes[i])cout<<z<<",";
+        cout<<"\n";
+    }*/
+    componentes = 0;
+    while(!pila.empty())pila.pop();
+    for(int i = 1;i < extras;i++){
+        //cout<<i<<"\n";
+        tarjan(i,mapa,infoNodos,vis,visitas,dag,pila,componentes,cantidadTokens,traductor["3ps"]);
+    }
+    listo.clear();
+
+    primerosdag.clear();
+    vector<set<int> >segundosdag(componentes+2);
+    for(int i =1;i<=componentes;i++){
+        for(int z:siguientes[i])segundosdag[dag[i]].insert(z);
+    }
+
+    dagueado.resize(componentes+2);
+    vis.clear();
+    vis.resize(componentes+2);
+    for(int i =1;i<extras;i++){
+        for(auto z: mapa[i]){
+            if(dag[i]!=dag[z.destino]){
+                if(infoNodos[i].cuentas[z.grupo]>=z.prioridad && !listo.count({dag[i],dag[z.destino]})){
+                    dagueado[dag[i]].push_back(dag[z.destino]);
+                    listo.insert({dag[i],dag[z.destino]});
+                }
+            }
+        }
+    }
+    for(int i=1;i<=componentes;i++){
+        buscasegundo(i,segundosdag,dagueado,vis,cantidadTokens);
+    }
+
+    tradag.clear();
+    tradag.resize(componentes+2);
+    for(int i=1;i<extras;i++){
+        tradag[dag[i]].push_back(i);
+    }
+
+    for(int i=1;i<=componentes;i++){
+        for(int z:tradag[i]){
+            for(int zi: segundosdag[i])
+                siguientes[z].insert(zi);
+        }
+    }
     return true;
 }
 #endif
