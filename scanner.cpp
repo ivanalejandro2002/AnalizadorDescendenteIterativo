@@ -39,7 +39,7 @@ int main(int argc,char *argv[]){
     vector<set<int> > primeros;
     vector<set<int> > siguientes;
     int todosComponentes=0;
-    registro(terminos,primeros,siguientes,arbol,cantidadTokens+1,todosComponentes,inversoterminos);
+    if(!registro(terminos,primeros,siguientes,arbol,cantidadTokens+1,todosComponentes,inversoterminos))return 0;
     //cout<<":)\n";
     for(int i=1;i<todosComponentes;i++){
         cout<<inversoterminos[i]<<"::\n{";
@@ -57,6 +57,29 @@ int main(int argc,char *argv[]){
             cout<<nombres[z]<<", ";
         }
         cout<<"}\n";
+    }
+    cout<<terminos.size()-cantidadTokens-1<<"\n";
+    vector<vector<vector<int> > > tabla(terminos.size()+1,vector<vector<int> >(cantidadTokens+4));
+    int epsilon = cantidadTokens+1;
+    if(!entabla(primeros,siguientes,tabla,cantidadTokens+2,terminos["3ps"],terminos["1d"]))return 0;
+    for(int i =1;i<=cantidadTokens+1;i++){
+        cout<<nombres[i]<<",";
+    }
+    cout<<"epsilon";
+    cout<<"\n";
+    for(int i =cantidadTokens+1;i<todosComponentes-2;i++){
+        cout<<inversoterminos[i]<<"::\n";
+        for(int j=1;j<=cantidadTokens+2;j++){
+            cout<<"\t";
+            if(j<=cantidadTokens+1)cout<<nombres[j]<<":";
+            else cout<<"epsilon:";
+            for(int z: tabla[i][j]){
+                if(z<=cantidadTokens+1)cout<<nombres[z]<<",";
+                else cout<<inversoterminos[z]<<",";
+            }
+            cout<<"\n";
+        }
+        cout<<"\n";
     }
     //-----------------------------------------------------------------------------
     bool existe_Error=0;

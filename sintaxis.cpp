@@ -21,6 +21,81 @@ struct aristaCiclo{
     int prioridad;
 };
 int act= 0;
+
+
+bool entabla(vector<set<int> > &primeros, vector<set<int> > &siguientes, vector<vector<vector<int> > > &tabla,int cantidadTokens,int vacio,int id){
+    ifstream fin;
+    fin.open("gramTraduc");
+    int origen,elementos;
+    while(fin>>origen){
+        //cout<<":)";
+        vector<bool> actual(cantidadTokens+2);
+        fin>>elementos;
+        vector<int> prod(elementos);
+        for(int i =0;i<elementos;i++){
+            fin>>prod[i];
+        }
+        int i = 0;
+        while(i<elementos){
+            for(int z: primeros[prod[i]]){
+                if(z==vacio)continue;
+                if(actual[z] && primeros[prod[i]].count(vacio))continue;
+                if(actual[z])break;
+                int pos = z;
+                if(pos == vacio)pos = cantidadTokens;
+                if(pos == id)pos = cantidadTokens+1;
+                if(tabla[origen][pos].size()!=0){
+                    cout<<"La gramatica tiene conflictos de redundancia\n";
+                    return 0;
+                }
+                for(int zi:prod){
+                    int pu = zi;
+                    if(pu == id) pu = cantidadTokens-1;
+                    tabla[origen][pos].push_back(pu);
+                }
+                actual[z]=1;
+            }
+            if(!primeros[prod[i]].count(vacio))break;
+            i++;
+        }
+        vector<bool> checados(cantidadTokens+2);
+        if(i>=elementos){
+            if(elementos == 1 && prod[0]==vacio){
+                for(int z: siguientes[origen]){
+                    int pos = z;
+                    if(pos == vacio)pos=cantidadTokens;
+                    if(pos == id)pos=cantidadTokens+1;
+                    if(tabla[origen][pos].size()>0 && !checados[pos]){
+                        cout<<"La gramatica tiene conflictos de redundancia\n";
+                        return 0;
+                    }
+                    tabla[origen][pos].push_back(vacio);
+                    checados[pos]=1;
+                }
+            }else{
+                for(int z: siguientes[origen]){
+                    int pos = z;
+                    if(pos == vacio)pos=cantidadTokens;
+                    if(pos == id)pos=cantidadTokens+1;
+                    if(tabla[origen][pos].size()==1 && tabla[origen][pos][0]==vacio)continue;
+                    if(tabla[origen][pos].size()>0){
+                        cout<<"La gramatica tiene conflictos de redundancia\n";
+                        return 0;
+                    }
+                    for(int zi:prod){
+                        int pu = zi;
+                        if(pu == id) pu = cantidadTokens-1;
+                        tabla[origen][pos].push_back(pu);
+                    }
+                    checados[pos]=1;
+                }
+            }
+        }
+    }
+    return true;
+}
+
+
 bool tarjan(int nodo,vector<vector<aristaCiclo> > &mapa,vector<nodoCiclo> &infoNodos,vector<int> &vis,vector<pair<int,int> > &visitas,vector<int> &dag,stack<int> &pila,int &cont,int cantidadTokens,int codeps){
     if(vis[nodo] > 0)return infoNodos[nodo].epsilon;
     vis[nodo] = 1;
@@ -337,6 +412,7 @@ bool registro(map<string,int> &traductor,vector<set<int> > &primeros,vector<set<
                 siguientes[z].insert(zi);
         }
     }
+    fin.close();
     return true;
 }
 #endif
