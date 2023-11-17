@@ -92,6 +92,11 @@ bool entabla(vector<set<int> > &primeros, vector<set<int> > &siguientes, vector<
             }
         }
     }
+    if(tabla[cantidadTokens][cantidadTokens].size()>0 && tabla[cantidadTokens][cantidadTokens][0]!=vacio){
+        cout<<"La gramatica tiene redundancias\n";
+        return 0;
+    }
+    if(tabla[cantidadTokens][cantidadTokens].size()==0)tabla[cantidadTokens][cantidadTokens].push_back(vacio);
     return true;
 }
 

@@ -41,7 +41,7 @@ int main(int argc,char *argv[]){
     int todosComponentes=0;
     if(!registro(terminos,primeros,siguientes,arbol,cantidadTokens+1,todosComponentes,inversoterminos))return 0;
     //cout<<":)\n";
-    for(int i=1;i<todosComponentes;i++){
+    /*for(int i=1;i<todosComponentes;i++){
         cout<<inversoterminos[i]<<"::\n{";
         for(int z:primeros[i]){
             if(z>cantidadTokens+1){cout<<"Epsilon, ";continue;}
@@ -59,10 +59,11 @@ int main(int argc,char *argv[]){
         cout<<"}\n";
     }
     cout<<terminos.size()-cantidadTokens-1<<"\n";
+    */
     vector<vector<vector<int> > > tabla(terminos.size()+1,vector<vector<int> >(cantidadTokens+4));
     int epsilon = cantidadTokens+1;
     if(!entabla(primeros,siguientes,tabla,cantidadTokens+2,terminos["3ps"],terminos["1d"]))return 0;
-    for(int i =1;i<=cantidadTokens+1;i++){
+    /*for(int i =1;i<=cantidadTokens+1;i++){
         cout<<nombres[i]<<",";
     }
     cout<<"epsilon";
@@ -81,6 +82,7 @@ int main(int argc,char *argv[]){
         }
         cout<<"\n";
     }
+    */
     //-----------------------------------------------------------------------------
     bool existe_Error=0;
     bool comentariote = 0;
@@ -93,8 +95,9 @@ int main(int argc,char *argv[]){
             existe_Error = evalua(lecturas,arbol,cantidadTokens,nombres,comentariote,registro_Tokens);
             errores_general|=existe_Error;
             if(existe_Error)continue;
-            registro_Tokens.recorre();
+            //registro_Tokens.recorre();
         }
+        if(!registro_Tokens.sintaxisea(tabla,0,registro_Tokens.indice_final,cantidadTokens+1,terminos["3ps"]))return 0;
         if(errores_general)cout<<"El programa termino con errores\n";
         else cout<<"El programa termino exitosamente\n";
     }else{
@@ -102,8 +105,26 @@ int main(int argc,char *argv[]){
         while(1){
             getline(cin,lectura);
             existe_Error = evalua(lectura,arbol,cantidadTokens,nombres,comentariote,registro_Tokens);
+            if(existe_Error){
+                while(registro_Tokens.indice_final>registro_Tokens.indice_inicial){
+                    registro_Tokens.indice_final--;
+                    registro_Tokens.elementos.pop_back();
+                }
+            }
             if(existe_Error)continue;
-            registro_Tokens.recorre();
+            //cout<<registro_Tokens.indice_inicial<<","<<registro_Tokens.indice_final<<"::\n";
+            bool correcto;
+            correcto = registro_Tokens.sintaxisea(tabla,registro_Tokens.indice_inicial,registro_Tokens.indice_final,cantidadTokens+1,terminos["3ps"]);
+            
+            if(!correcto){
+                while(registro_Tokens.indice_final>registro_Tokens.indice_inicial){
+                    registro_Tokens.indice_final--;
+                    registro_Tokens.elementos.pop_back();
+                }
+                continue;
+            }
+            registro_Tokens.indice_inicial=registro_Tokens.indice_final;
+            //registro_Tokens.recorre();
         }
     }
 }
