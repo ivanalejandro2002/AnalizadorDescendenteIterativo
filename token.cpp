@@ -2,6 +2,7 @@
 #define token_Cabecera
 #include <iostream>
 #include <vector>
+#include <stack>
 using namespace std;
 struct nodo_Token{
     int token;
@@ -24,6 +25,60 @@ struct token{
     void elimina(){
         elementos.pop_back();
         indice_final--;
+    }
+    bool sintaxisea(vector<vector<vector<int> > > &tabla,int inicio, int fin,int cantidadTokens,int vacio){
+        stack<int> pila;
+        pila.push(cantidadTokens+1);
+        for(int i = inicio;i<fin;){
+            int posactual = pila.top();
+            pila.pop();
+            if(posactual>cantidadTokens && posactual!=vacio){
+                nodo_Token z = elementos[i];
+                if(!tabla[posactual][z.token].size()){
+                    cout<<"No se esperaba el termino "<<z.token<<" en el elemento "<<i-inicio+1<<". Se esperaba "<<posactual<<"\n";
+                    return 0;
+                }
+                for(int i = tabla[posactual][z.token].size()-1;i>=0;i--){
+                    //cout<<tabla[posactual][z.token][i]<<" ";
+                    pila.push(tabla[posactual][z.token][i]);
+                }
+                //cout<<"\n";
+            }else{
+                if(posactual==vacio){
+                    continue;
+                }
+                nodo_Token z = elementos[i];
+                if(posactual!=z.token){
+                    cout<<"Se esperaba el token '"<<posactual<<"' En el elemento "<<i-inicio+1<<"\n";
+                    return 0;
+                }
+                i++;
+            }
+        }
+        while(!pila.empty()){
+            int posactual = pila.top();
+            pila.pop();
+            if(posactual>cantidadTokens && posactual!=vacio){
+                int ztoken = cantidadTokens+1;
+                //cout<<ztoken<<"\n";
+                if(!tabla[posactual][ztoken].size()){
+                    cout<<"Hay un error de sintaxis\n";
+                    return 0;
+                }else{
+                    for(int i = tabla[posactual][ztoken].size()-1;i>=0;i--){
+                        //cout<<tabla[posactual][ztoken][i];
+                        pila.push(tabla[posactual][ztoken][i]);
+                    }
+                    //cout<<"\n";
+                }
+            }else{
+                if(posactual!=vacio){
+                    cout<<"Hay un error de sintaxis\n";
+                    return 0;
+                }
+            }
+        }
+        return 1;
     }
 };
 #endif
