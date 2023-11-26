@@ -26,7 +26,7 @@ struct token{
         elementos.pop_back();
         indice_final--;
     }
-    bool sintaxisea(vector<vector<vector<int> > > &tabla,int inicio, int fin,int cantidadTokens,int vacio){
+    bool sintaxisea(vector<vector<vector<int> > > &tabla,int inicio, int fin,int cantidadTokens,int vacio,map<int,string> &inversoterminos, vector<string> &nombres){
         stack<int> pila;
         pila.push(cantidadTokens+1);
         for(int i = inicio;i<fin;){
@@ -35,7 +35,9 @@ struct token{
             if(posactual>cantidadTokens && posactual!=vacio){
                 nodo_Token z = elementos[i];
                 if(!tabla[posactual][z.token].size()){
-                    cout<<"No se esperaba el termino "<<z.token<<" en el elemento "<<i-inicio+1<<". Se esperaba "<<posactual<<"\n";
+                    cout<<"No se esperaba el termino "<<nombres[z.token]<<" ";
+                    if(z.token==cantidadTokens)cout<<z.lexema;
+                    cout<<" en el elemento "<<i-inicio+1<<"\n";
                     return 0;
                 }
                 for(int i = tabla[posactual][z.token].size()-1;i>=0;i--){
@@ -49,7 +51,9 @@ struct token{
                 }
                 nodo_Token z = elementos[i];
                 if(posactual!=z.token){
-                    cout<<"Se esperaba el token '"<<posactual<<"' En el elemento "<<i-inicio+1<<"\n";
+                    cout<<"Se esperaba el token '"<<nombres[posactual]<<"' En el elemento "<<i-inicio+1<<", se encontro: "<< nombres[z.token];
+                    if(z.token==cantidadTokens)cout<<" "<<z.lexema;
+                    cout<<"\n";
                     return 0;
                 }
                 i++;
@@ -62,7 +66,7 @@ struct token{
                 int ztoken = cantidadTokens+1;
                 //cout<<ztoken<<"\n";
                 if(!tabla[posactual][ztoken].size()){
-                    cout<<"Hay un error de sintaxis\n";
+                    cout<<"La instruccion esta incompleta\n";
                     return 0;
                 }else{
                     for(int i = tabla[posactual][ztoken].size()-1;i>=0;i--){
@@ -73,7 +77,7 @@ struct token{
                 }
             }else{
                 if(posactual!=vacio){
-                    cout<<"Hay un error de sintaxis\n";
+                    cout<<"La instruccion esta incompleta II\n";
                     return 0;
                 }
             }

@@ -97,7 +97,7 @@ int main(int argc,char *argv[]){
             if(existe_Error)continue;
             //registro_Tokens.recorre();
         }
-        if(!registro_Tokens.sintaxisea(tabla,0,registro_Tokens.indice_final,cantidadTokens+1,terminos["3ps"]))return 0;
+        if(!registro_Tokens.sintaxisea(tabla,0,registro_Tokens.indice_final,cantidadTokens+1,terminos["3ps"],inversoterminos,nombres))return 0;
         if(errores_general)cout<<"El programa termino con errores\n";
         else cout<<"El programa termino exitosamente\n";
     }else{
@@ -114,7 +114,7 @@ int main(int argc,char *argv[]){
             if(existe_Error)continue;
             //cout<<registro_Tokens.indice_inicial<<","<<registro_Tokens.indice_final<<"::\n";
             bool correcto;
-            correcto = registro_Tokens.sintaxisea(tabla,registro_Tokens.indice_inicial,registro_Tokens.indice_final,cantidadTokens+1,terminos["3ps"]);
+            correcto = registro_Tokens.sintaxisea(tabla,registro_Tokens.indice_inicial,registro_Tokens.indice_final,cantidadTokens+1,terminos["3ps"],inversoterminos,nombres);
             
             if(!correcto){
                 while(registro_Tokens.indice_final>registro_Tokens.indice_inicial){
